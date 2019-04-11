@@ -106,7 +106,7 @@ $(document).ready(function () {
     //animatedModal
     $("#demo01,#demo02,#demo03,#demo04,#demo05,#demo06,#demo07,#demo08,#demo09").animatedModal();
 
-    // Contact Form 	
+    // Contact Form
 
     // validate contact form
     $(function () {
@@ -143,6 +143,7 @@ $(document).ready(function () {
                 $(form).ajaxSubmit({
                     type: "POST",
                     data: $(form).serialize(),
+                    //https://skinny-food.glitch.me/api/sendMail
                     url: "process.php",
                     success: function () {
                         $('#contact :input').attr('disabled', 'disabled');
