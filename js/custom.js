@@ -144,7 +144,7 @@ $(document).ready(function () {
                     type: "POST",
                     data: $(form).serialize(),
                     //https://skinny-food.glitch.me/api/sendMail
-                    url: "process.php",
+                    url: "//https://skinny-food.glitch.me/api/sendMail",
                     success: function () {
                         $('#contact :input').attr('disabled', 'disabled');
                         $('#contact').fadeTo("slow", 1, function () {
@@ -163,4 +163,55 @@ $(document).ready(function () {
         });
 
     });
+});
+var express = require('express');
+var cors = require('cors');
+
+var nodemailer = require('nodemailer');
+
+// create reusable transporter object using the default SMTP transport
+var transporter = nodemailer.createTransport('smtps://'+process.env.SMTP_LOGIN+':'+process.env.SMTP_PASSW+'@smtp.mailgun.org');
+
+var fs = require('fs');
+var path = require('path');
+var bodyParser = require('body-parser');
+var app = express();
+
+app.set('port', (process.env.PORT || 3000));
+app.use(cors());
+app.use('/', express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(bodyParser.json());
+
+app.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-cache');
+    next();
+});
+
+app.post('/api/sendMail', function(req, res) {
+  /*///////// START - THE NODEMAILER PART ///////////*/
+  console.log(req.body);
+
+  transporter.sendMail({
+    from: '"'+req.body.name+' " <'+req.body.sender+'>', // sender address
+    to: process.env.RECIPIENT, //receiver address
+    subject: 'Hi from your web form!', //subject line
+    text: req.body.text, //plaintext body
+    html: '<b>'+req.body.text+'</b>' //html body
+  }, function(err, info) {
+    if (err) {
+      console.log('Error: ' + err)
+      res.send('Error: ' + err);
+    } else {
+      console.log('Response: ' + info)
+      res.send('success');
+    }
+  });
+});
+
+app.listen(app.get('port'), function() {
+  console.log('Server started on: ' + app.get('port'));
 });
